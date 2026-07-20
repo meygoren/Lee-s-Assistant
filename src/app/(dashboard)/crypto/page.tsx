@@ -20,6 +20,7 @@ export default function CryptoPage() {
   const [entries, setEntries] = useState<CryptoNewsEntry[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const coins = resolveCoins(coinIds);
   const { prices, ticks, loading: loadingPrices } = useCryptoPrices(coinIds);
 
@@ -45,9 +46,16 @@ export default function CryptoPage() {
 
   const generateNews = async () => {
     setGenerating(true);
+    setError(null);
     try {
-      await fetch("/api/crypto/news", { method: "POST" });
+      const res = await fetch("/api/crypto/news", { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || `Request failed (${res.status})`);
+      }
       await loadNews();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setGenerating(false);
     }
@@ -116,6 +124,12 @@ export default function CryptoPage() {
           {generating ? dict.crypto.newsGenerating : dict.crypto.newsGenerate}
         </button>
       </div>
+
+      {error && (
+        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          {dict.crypto.newsError}: {error}
+        </p>
+      )}
 
       {!loadingNews && entries.length === 0 && <p className="text-sm text-zinc-500">{dict.crypto.newsEmpty}</p>}
 

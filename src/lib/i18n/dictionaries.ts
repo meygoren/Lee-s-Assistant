@@ -70,6 +70,7 @@ export const dictionaries = {
       history: "历史记录",
       empty: "还没有生成过快讯，点击上方按钮开始吧。",
       askBackTitle: "帮我更了解你",
+      generateError: "生成失败",
     },
     crypto: {
       title: "加密货币",
@@ -80,6 +81,7 @@ export const dictionaries = {
       newsGenerate: "获取最新资讯",
       newsGenerating: "正在搜索最新资讯…",
       newsEmpty: "还没有生成过资讯，点击上方按钮开始吧。",
+      newsError: "生成失败",
       noCoins: "还没有选择要关注的加密货币，请到设置页选择最多 5 个。",
     },
     settings: {
@@ -182,6 +184,7 @@ export const dictionaries = {
       history: "History",
       empty: "No digests yet — click the button above to generate your first one.",
       askBackTitle: "Help me understand you better",
+      generateError: "Generation failed",
     },
     crypto: {
       title: "Crypto",
@@ -192,6 +195,7 @@ export const dictionaries = {
       newsGenerate: "Get latest news",
       newsGenerating: "Searching for the latest news…",
       newsEmpty: "No news yet — click the button above to generate your first digest.",
+      newsError: "Generation failed",
       noCoins: "No cryptocurrencies selected yet — pick up to 5 in Settings.",
     },
     settings: {

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateAndStoreNewsletter } from "@/lib/newsletter";
 
+// Web-search-grounded AI generation can take well past Vercel's default
+// function timeout — allow up to 60s (the max on the Hobby plan).
+export const maxDuration = 60;
+
 // Trigger every morning via Vercel Cron (see vercel.json) or any external scheduler.
 // Protect with CRON_SECRET so this endpoint can't be triggered by anyone else.
 export async function GET(req: NextRequest) {

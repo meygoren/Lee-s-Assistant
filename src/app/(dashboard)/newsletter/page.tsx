@@ -10,6 +10,7 @@ export default function NewsletterPage() {
   const [entries, setEntries] = useState<NewsletterEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -26,9 +27,16 @@ export default function NewsletterPage() {
 
   const generate = async () => {
     setGenerating(true);
+    setError(null);
     try {
-      await fetch("/api/newsletter/generate", { method: "POST" });
+      const res = await fetch("/api/newsletter/generate", { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || `Request failed (${res.status})`);
+      }
       await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setGenerating(false);
     }
@@ -49,6 +57,12 @@ export default function NewsletterPage() {
         <Sparkles size={16} strokeWidth={2} />
         {generating ? dict.newsletter.generating : dict.newsletter.generate}
       </button>
+
+      {error && (
+        <p className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          {dict.newsletter.generateError}: {error}
+        </p>
+      )}
 
       {!loading && entries.length === 0 && <p className="text-sm text-zinc-500">{dict.newsletter.empty}</p>}
 

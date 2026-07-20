@@ -7,6 +7,8 @@ const STUB_REPLY = {
   en: "I'm not connected to an AI brain yet (no API key configured). Add an Anthropic or Gemini key in Settings and I'll be able to actually answer questions and summarize your goals and schedule.",
 };
 
+export const maxDuration = 30;
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const message = typeof body?.message === "string" ? body.message.trim() : "";
