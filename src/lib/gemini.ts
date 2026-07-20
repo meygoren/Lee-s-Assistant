@@ -6,4 +6,4 @@ export function getGeminiClient(): GoogleGenAI | null {
   return new GoogleGenAI({ apiKey });
 }
 
-export const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
