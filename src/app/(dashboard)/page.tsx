@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_TIME_ZONES } from "@/lib/geo";
+import { DEFAULT_CRYPTO_COINS } from "@/lib/crypto";
 import { HomeView } from "./HomeView";
 
 export default async function DashboardHomePage() {
@@ -23,5 +24,16 @@ export default async function DashboardHomePage() {
       ? (settings.globeTimeZones as string[])
       : DEFAULT_TIME_ZONES;
 
-  return <HomeView notificationCount={dueSoonGoals + upcomingEvents} timeZoneIds={timeZoneIds} />;
+  const cryptoCoinIds =
+    Array.isArray(settings?.cryptoCoins) && (settings.cryptoCoins as unknown[]).length > 0
+      ? (settings.cryptoCoins as string[])
+      : DEFAULT_CRYPTO_COINS;
+
+  return (
+    <HomeView
+      notificationCount={dueSoonGoals + upcomingEvents}
+      timeZoneIds={timeZoneIds}
+      cryptoCoinIds={cryptoCoinIds}
+    />
+  );
 }

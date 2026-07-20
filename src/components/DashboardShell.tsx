@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Target, CalendarDays, Newspaper, Settings, Sparkles, LogOut, Languages } from "lucide-react";
+import { Home, Target, CalendarDays, Newspaper, Bitcoin, Settings, Sparkles, LogOut, Languages } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 const NAV_ITEMS = [
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/goals", key: "goals" as const, Icon: Target },
   { href: "/calendar", key: "calendar" as const, Icon: CalendarDays },
   { href: "/newsletter", key: "newsletter" as const, Icon: Newspaper },
+  { href: "/crypto", key: "crypto" as const, Icon: Bitcoin },
   { href: "/settings", key: "settings" as const, Icon: Settings },
 ];
 

@@ -62,11 +62,15 @@ Since personal WeChat accounts have no official bot API (and unofficial ones ris
 
 `/api/cron/newsletter` generates a digest and pushes it to WeChat Work and/or Telegram, whichever is configured. `vercel.json` is already set up to call it daily at 23:00 UTC (≈ 07:00 Beijing/Shanghai time) via Vercel Cron — this is enabled automatically once the app is deployed on Vercel with `CRON_SECRET` set. Vercel sends that secret as a Bearer token automatically, so no extra setup is needed.
 
+## Cryptocurrency tracking
+
+Prices come from CoinGecko's free public API — no signup or API key required. Pick up to 5 coins to track in **Settings**; they show as a live ticker (refreshes every 10 seconds) on the **Home** page, and as detailed cards on the dedicated **Crypto** tab. The Crypto tab also has an on-demand AI news digest (via Claude + web search, same pattern as the AI Newsletter) covering whatever coins you're tracking.
+
 ## Project structure
 
-- `src/app/(dashboard)/` — the five tabs: Home (globe + voice assistant), Goals, Calendar, AI Newsletter, Settings
-- `src/app/api/` — backend routes (goals, events, newsletter, settings, assistant chat, auth, cron)
-- `src/lib/` — Prisma client, session/auth helpers, Anthropic client, WeChat/Telegram push, i18n dictionaries
+- `src/app/(dashboard)/` — the six tabs: Home (globe + voice assistant + crypto ticker), Goals, Calendar, AI Newsletter, Crypto, Settings
+- `src/app/api/` — backend routes (goals, events, newsletter, crypto, settings, assistant chat, auth, cron)
+- `src/lib/` — Prisma client, session/auth helpers, Anthropic client, WeChat/Telegram push, crypto price fetching, i18n dictionaries
 - `prisma/schema.prisma` — data model (Postgres)
 
 ## Voice on the Home tab

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { CITY_LIBRARY, DEFAULT_TIME_ZONES } from "@/lib/geo";
+import { COIN_LIBRARY, DEFAULT_CRYPTO_COINS, MAX_TRACKED_COINS } from "@/lib/crypto";
 
 type SettingsData = {
   language: "zh" | "en";
@@ -11,6 +12,7 @@ type SettingsData = {
   wechatWebhookUrl: string | null;
   telegramChatId: string | null;
   globeTimeZones: string[];
+  cryptoCoins: string[];
   anthropicKeyConfigured: boolean;
   telegramBotTokenConfigured: boolean;
 };
@@ -22,6 +24,7 @@ export default function SettingsPage() {
   const [wechatWebhookUrl, setWechatWebhookUrl] = useState("");
   const [telegramChatId, setTelegramChatId] = useState("");
   const [globeTimeZones, setGlobeTimeZones] = useState<string[]>(DEFAULT_TIME_ZONES);
+  const [cryptoCoins, setCryptoCoins] = useState<string[]>(DEFAULT_CRYPTO_COINS);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -37,6 +40,11 @@ export default function SettingsPage() {
             ? settings.globeTimeZones
             : DEFAULT_TIME_ZONES
         );
+        setCryptoCoins(
+          Array.isArray(settings.cryptoCoins) && settings.cryptoCoins.length > 0
+            ? settings.cryptoCoins
+            : DEFAULT_CRYPTO_COINS
+        );
       });
   }, []);
 
@@ -46,12 +54,27 @@ export default function SettingsPage() {
     );
   };
 
+  const toggleCoin = (coinId: string) => {
+    setCryptoCoins((prev) => {
+      if (prev.includes(coinId)) return prev.filter((id) => id !== coinId);
+      if (prev.length >= MAX_TRACKED_COINS) return prev;
+      return [...prev, coinId];
+    });
+  };
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch("/api/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ aiKnowledgeLevel, wechatWebhookUrl, telegramChatId, language: lang, globeTimeZones }),
+      body: JSON.stringify({
+        aiKnowledgeLevel,
+        wechatWebhookUrl,
+        telegramChatId,
+        language: lang,
+        globeTimeZones,
+        cryptoCoins,
+      }),
     });
     const { settings } = await res.json();
     setData((prev) => (prev ? { ...prev, ...settings } : prev));
@@ -145,6 +168,42 @@ export default function SettingsPage() {
                     {active && <Check size={10} strokeWidth={3} />}
                   </span>
                   {city.name[lang]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+          <div className="mb-1 flex items-center justify-between">
+            <label className="block text-sm font-medium text-zinc-200">{dict.settings.cryptoCoins}</label>
+            <span className="text-xs text-zinc-500">{cryptoCoins.length}/{MAX_TRACKED_COINS}</span>
+          </div>
+          <p className="mb-3 text-xs text-zinc-500">{dict.settings.cryptoCoinsHelp}</p>
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+            {COIN_LIBRARY.map((coin) => {
+              const active = cryptoCoins.includes(coin.id);
+              const disabled = !active && cryptoCoins.length >= MAX_TRACKED_COINS;
+              return (
+                <button
+                  key={coin.id}
+                  type="button"
+                  onClick={() => toggleCoin(coin.id)}
+                  disabled={disabled}
+                  className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                    active
+                      ? "border-cyan-500/60 bg-cyan-500/10 text-cyan-300"
+                      : "border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  <span
+                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
+                      active ? "border-cyan-400 bg-cyan-400 text-zinc-950" : "border-zinc-600"
+                    }`}
+                  >
+                    {active && <Check size={10} strokeWidth={3} />}
+                  </span>
+                  {coin.symbol} · {coin.name[lang]}
                 </button>
               );
             })}

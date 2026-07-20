@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { MAX_TRACKED_COINS } from "@/lib/crypto";
 
 export async function GET() {
   const settings = await prisma.settings.upsert({
@@ -31,6 +32,9 @@ export async function PATCH(req: NextRequest) {
   }
   if (Array.isArray(body.globeTimeZones) && body.globeTimeZones.every((v: unknown) => typeof v === "string")) {
     data.globeTimeZones = body.globeTimeZones;
+  }
+  if (Array.isArray(body.cryptoCoins) && body.cryptoCoins.every((v: unknown) => typeof v === "string")) {
+    data.cryptoCoins = body.cryptoCoins.slice(0, MAX_TRACKED_COINS);
   }
 
   const settings = await prisma.settings.upsert({
