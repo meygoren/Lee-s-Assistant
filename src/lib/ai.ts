@@ -40,15 +40,25 @@ export async function generateAIText(opts: GenerateOptions): Promise<string | nu
   if (provider === "gemini") {
     const client = getGeminiClient();
     if (!client) return null;
-    const response = await client.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: opts.userMessage,
-      config: {
-        systemInstruction: opts.systemPrompt,
-        tools: opts.webSearch ? [{ googleSearch: {} }] : undefined,
-      },
-    });
-    return response.text ?? null;
+    try {
+      const response = await client.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: opts.userMessage,
+        config: {
+          systemInstruction: opts.systemPrompt,
+          tools: opts.webSearch ? [{ googleSearch: {} }] : undefined,
+        },
+      });
+      return response.text ?? null;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes("429") || message.includes("RESOURCE_EXHAUSTED")) {
+        throw new Error(
+          "Gemini's free-tier rate limit was hit. This usually clears within a minute — wait a bit and try again. If it keeps happening, check your usage at https://ai.dev/rate-limit."
+        );
+      }
+      throw err;
+    }
   }
 
   return null;
