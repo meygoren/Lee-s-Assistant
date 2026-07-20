@@ -14,6 +14,8 @@ type SettingsData = {
   globeTimeZones: string[];
   cryptoCoins: string[];
   anthropicKeyConfigured: boolean;
+  geminiKeyConfigured: boolean;
+  activeAIProvider: "anthropic" | "gemini" | null;
   telegramBotTokenConfigured: boolean;
 };
 
@@ -218,6 +220,17 @@ export default function SettingsPage() {
               {data?.anthropicKeyConfigured ? dict.settings.configured : dict.settings.notConfigured}
             </span>
           </div>
+          <div className="mt-2 flex items-center justify-between text-sm">
+            <span className="text-zinc-400">{dict.settings.geminiKey}</span>
+            <span className={data?.geminiKeyConfigured ? "text-cyan-400" : "text-zinc-500"}>
+              {data?.geminiKeyConfigured ? dict.settings.configured : dict.settings.notConfigured}
+            </span>
+          </div>
+          {data?.activeAIProvider && (
+            <p className="mt-2 text-xs text-zinc-500">
+              {dict.settings.activeProvider}: <span className="text-cyan-400">{data.activeAIProvider === "anthropic" ? "Anthropic (Claude)" : "Google Gemini"}</span>
+            </p>
+          )}
           <div className="mt-2 flex items-center justify-between text-sm">
             <span className="text-zinc-400">{dict.settings.telegramBotToken}</span>
             <span className={data?.telegramBotTokenConfigured ? "text-cyan-400" : "text-zinc-500"}>

@@ -1,20 +1,20 @@
 import { prisma } from "@/lib/prisma";
-import { getAnthropicClient, CLAUDE_MODEL } from "@/lib/anthropic";
+import { generateAIText, getActiveProvider } from "@/lib/ai";
 import { pushToWeChat } from "@/lib/wechat";
 import { pushToTelegram } from "@/lib/telegram";
 import type { NewsletterEntry } from "@/generated/prisma";
 
 const STUB_CONTENT: Record<"zh" | "en", { summary: string; content: string; askBack: string }> = {
   zh: {
-    summary: "示例内容：尚未配置 Anthropic API Key。",
+    summary: "示例内容：尚未配置 AI API Key。",
     content:
-      "这是一个示例 AI 快讯。配置好 Anthropic API Key 后，这里将会是每天为你搜索并整理的最新 AI 工具和新闻，并说明如何用在你的生活和工作中。",
+      "这是一个示例 AI 快讯。在设置页面配置 Anthropic 或免费的 Gemini API Key 后，这里将会是每天为你搜索并整理的最新 AI 工具和新闻，并说明如何用在你的生活和工作中。",
     askBack: "你目前最常用哪些 AI 工具？",
   },
   en: {
-    summary: "Sample content: Anthropic API key not configured yet.",
+    summary: "Sample content: no AI API key configured yet.",
     content:
-      "This is placeholder content. Once you add an Anthropic API key, this tab will show a daily digest of the newest AI tools and news, explained simply and tied to your life and work.",
+      "This is placeholder content. Once you add an Anthropic key or a free Gemini API key, this tab will show a daily digest of the newest AI tools and news, explained simply and tied to your life and work.",
     askBack: "Which AI tools do you currently use most often?",
   },
 };
@@ -33,8 +33,7 @@ export async function generateAndStoreNewsletter(): Promise<NewsletterEntry> {
   const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
   const lang: "zh" | "en" = settings?.language === "en" ? "en" : "zh";
 
-  const client = getAnthropicClient();
-  if (!client) {
+  if (!getActiveProvider()) {
     const stub = STUB_CONTENT[lang];
     return prisma.newsletterEntry.create({
       data: { summary: stub.summary, content: stub.content, askBack: stub.askBack },
@@ -56,23 +55,11 @@ Format as Markdown with 2-4 short items, each with a bold title. Keep the whole 
 
 End your response with exactly one clarifying question to help you understand Lee's work/life/interests better for future digests, on its own line prefixed by "QUESTION:" (in ${lang === "zh" ? "Mandarin" : "English"}).`;
 
-  const response = await client.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 2000,
-    system: systemPrompt,
-    tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 5 }],
-    messages: [
-      {
-        role: "user",
-        content: "Search for today's genuinely new AI news and tools, then write my digest.",
-      },
-    ],
+  const fullText = await generateAIText({
+    systemPrompt,
+    userMessage: "Search for today's genuinely new AI news and tools, then write my digest.",
+    webSearch: true,
   });
-
-  const fullText = response.content
-    .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
-    .map((b) => b.text)
-    .join("\n\n");
 
   const { content, askBack } = splitAskBack(fullText || STUB_CONTENT[lang].content);
   const summary =

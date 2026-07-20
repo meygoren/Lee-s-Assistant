@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { getAnthropicClient, CLAUDE_MODEL } from "@/lib/anthropic";
+import { generateAIText, getActiveProvider } from "@/lib/ai";
 import { resolveCoins } from "@/lib/crypto";
 import type { CryptoNewsEntry } from "@/generated/prisma";
 
 const STUB_CONTENT: Record<"zh" | "en", string> = {
-  zh: "这是一个示例内容。配置好 Anthropic API Key 后，这里将显示你所关注的加密货币的最新新闻摘要。",
-  en: "This is placeholder content. Once you add an Anthropic API key, this will show a fresh news summary for the coins you're tracking.",
+  zh: "这是一个示例内容。在设置页面配置 Anthropic 或免费的 Gemini API Key 后，这里将显示你所关注的加密货币的最新新闻摘要。",
+  en: "This is placeholder content. Once you add an Anthropic key or a free Gemini API key, this will show a fresh news summary for the coins you're tracking.",
 };
 
 export async function generateAndStoreCryptoNews(): Promise<CryptoNewsEntry> {
@@ -13,8 +13,7 @@ export async function generateAndStoreCryptoNews(): Promise<CryptoNewsEntry> {
   const lang: "zh" | "en" = settings?.language === "en" ? "en" : "zh";
   const coins = resolveCoins(settings?.cryptoCoins as string[] | undefined);
 
-  const client = getAnthropicClient();
-  if (!client || coins.length === 0) {
+  if (!getActiveProvider() || coins.length === 0) {
     return prisma.cryptoNewsEntry.create({ data: { content: STUB_CONTENT[lang] } });
   }
 
@@ -32,20 +31,12 @@ ${languageInstruction}
 
 Keep the whole digest readable in under two minutes. Format as Markdown.`;
 
-  const response = await client.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 1800,
-    system: systemPrompt,
-    tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 5 }],
-    messages: [
-      { role: "user", content: `Search for the latest news on ${coinList} and write my digest.` },
-    ],
+  const fullText = await generateAIText({
+    systemPrompt,
+    userMessage: `Search for the latest news on ${coinList} and write my digest.`,
+    webSearch: true,
+    maxTokens: 1800,
   });
 
-  const fullText = response.content
-    .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
-    .map((b) => b.text)
-    .join("\n\n");
-
-  return prisma.cryptoNewsEntry.create({ data: { content: fullText.trim() || STUB_CONTENT[lang] } });
+  return prisma.cryptoNewsEntry.create({ data: { content: fullText?.trim() || STUB_CONTENT[lang] } });
 }

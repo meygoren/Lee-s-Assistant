@@ -12,7 +12,7 @@ This is the recommended way to run the app. See the step-by-step click-through g
    - `LEE_APP_PASSWORD` — the password you'll use to log in
    - `SESSION_SECRET` — any long random string
    - `CRON_SECRET` — any long random string (protects the automated morning newsletter job)
-   - `ANTHROPIC_API_KEY` — optional; leave unset to see the app with placeholder AI content, add it later to turn on real AI
+   - `GEMINI_API_KEY` — free, no credit card; see "Turning on the real AI features" below. (Or `ANTHROPIC_API_KEY` if you'd rather pay for Claude.) Leave both unset to see the app with placeholder AI content.
 4. Redeploy (Vercel does this automatically after you add env vars, or click **Redeploy** in the Deployments tab).
 
 That's it — the build step (`prisma generate && prisma db push`) creates all the database tables automatically, no migration commands to run by hand.
@@ -34,10 +34,20 @@ Open [http://localhost:3000](http://localhost:3000) and log in.
 
 ## Turning on the real AI features
 
-Set `ANTHROPIC_API_KEY` (in Vercel's env vars, or `.env.local` for local dev). Once set:
+The app supports two AI providers — you only need one. If both are set, Anthropic is used.
 
-- The **Home** globe's chat panel calls Claude for real answers, grounded in your actual goals and calendar events.
-- The **AI Newsletter** tab searches the web for genuinely new AI news/tools and explains them in plain language, calibrated to what you've told it about yourself (Settings → "AI knowledge level").
+**Free option (recommended to start): Google Gemini**
+1. Go to [aistudio.google.com](https://aistudio.google.com), sign in with a Google account — no credit card required.
+2. Click **Get API key** → **Create API key**, copy it.
+3. Add it as `GEMINI_API_KEY` in Vercel's environment variables → redeploy.
+
+**Paid option: Anthropic (Claude)**
+Get a key at [console.anthropic.com](https://console.anthropic.com) (requires adding billing/credits) and set it as `ANTHROPIC_API_KEY`.
+
+Once either is set:
+
+- The **Home** globe's chat panel gives real answers, grounded in your actual goals and calendar events.
+- The **AI Newsletter** and **Crypto** tabs search the web for genuinely new AI news/tools and crypto news, explained in plain language, calibrated to what you've told it about yourself (Settings → "AI knowledge level").
 
 ## WeChat Work notifications
 
@@ -64,7 +74,7 @@ Since personal WeChat accounts have no official bot API (and unofficial ones ris
 
 ## Cryptocurrency tracking
 
-Prices come from CoinGecko's free public API — no signup or API key required. Pick up to 5 coins to track in **Settings**; they show as a live ticker (refreshes every 10 seconds) on the **Home** page, and as detailed cards on the dedicated **Crypto** tab. The Crypto tab also has an on-demand AI news digest (via Claude + web search, same pattern as the AI Newsletter) covering whatever coins you're tracking.
+Prices come from CoinGecko's free public API — no signup or API key required. Pick up to 5 coins to track in **Settings**; they show as a live ticker (refreshes every 10 seconds) on the **Home** page, and as detailed cards on the dedicated **Crypto** tab. The Crypto tab also has an on-demand AI news digest (via whichever AI provider is configured + web search, same pattern as the AI Newsletter) covering whatever coins you're tracking.
 
 ## Project structure
 

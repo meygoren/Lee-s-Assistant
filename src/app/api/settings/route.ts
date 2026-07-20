@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { MAX_TRACKED_COINS } from "@/lib/crypto";
+import { getActiveProvider } from "@/lib/ai";
 
 export async function GET() {
   const settings = await prisma.settings.upsert({
@@ -12,6 +13,8 @@ export async function GET() {
     settings: {
       ...settings,
       anthropicKeyConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
+      geminiKeyConfigured: Boolean(process.env.GEMINI_API_KEY),
+      activeAIProvider: getActiveProvider(),
       telegramBotTokenConfigured: Boolean(process.env.TELEGRAM_BOT_TOKEN),
     },
   });

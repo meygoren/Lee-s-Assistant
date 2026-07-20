@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAnthropicClient, CLAUDE_MODEL } from "@/lib/anthropic";
+import { generateAIText, getActiveProvider } from "@/lib/ai";
 
 const STUB_REPLY = {
-  zh: "我还没有连接到 AI 大脑（尚未配置 Anthropic API Key）。请到设置页面添加密钥，之后我就能真正回答你的问题、总结你的目标和日程了。",
-  en: "I'm not connected to an AI brain yet (no Anthropic API key configured). Add one in Settings and I'll be able to actually answer questions and summarize your goals and schedule.",
+  zh: "我还没有连接到 AI 大脑（尚未配置 API Key）。请到设置页面添加 Anthropic 或 Gemini 密钥，之后我就能真正回答你的问题、总结你的目标和日程了。",
+  en: "I'm not connected to an AI brain yet (no API key configured). Add an Anthropic or Gemini key in Settings and I'll be able to actually answer questions and summarize your goals and schedule.",
 };
 
 export async function POST(req: NextRequest) {
@@ -16,8 +16,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
 
-  const client = getAnthropicClient();
-  if (!client) {
+  if (!getActiveProvider()) {
     return NextResponse.json({ reply: STUB_REPLY[lang] });
   }
 
@@ -55,15 +54,7 @@ Known settings: AI knowledge level notes = "${settings?.aiKnowledgeLevel ?? "beg
 Keep replies conversational and concise (a few sentences, unless Lee is asking for a detailed summary of everything, in which case you may use short bullet points).`;
 
   try {
-    const response = await client.messages.create({
-      model: CLAUDE_MODEL,
-      max_tokens: 800,
-      system: systemPrompt,
-      messages: [{ role: "user", content: message }],
-    });
-
-    const textBlock = response.content.find((b) => b.type === "text");
-    const reply = textBlock && "text" in textBlock ? textBlock.text : STUB_REPLY[lang];
+    const reply = (await generateAIText({ systemPrompt, userMessage: message, maxTokens: 800 })) || STUB_REPLY[lang];
 
     await prisma.chatMessage.createMany({
       data: [
