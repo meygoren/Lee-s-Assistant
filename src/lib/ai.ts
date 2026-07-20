@@ -64,6 +64,10 @@ export async function generateAIText(opts: GenerateOptions): Promise<string | nu
       // the base text-generation quota on the free tier. If a search-grounded call
       // gets quota-limited, retry once without it instead of failing outright.
       if (isQuotaError && opts.webSearch) {
+        // Logged (not swallowed) even on a successful fallback, since this is
+        // otherwise invisible — check Vercel's Runtime Logs for the exact
+        // quota/permission text Google returned for the search-grounded call.
+        console.warn("Gemini search grounding failed, falling back without search:", message);
         try {
           const fallback = await callGemini(false);
           return fallback.text ?? null;

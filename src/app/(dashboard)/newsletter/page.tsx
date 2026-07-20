@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import type { NewsletterEntry } from "@/generated/prisma";
 
 export default function NewsletterPage() {
@@ -86,9 +87,7 @@ export default function NewsletterPage() {
                 )}
               </div>
             </div>
-            <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap text-zinc-200">
-              {entry.content}
-            </div>
+            <MarkdownContent content={entry.content} />
             {entry.askBack && (
               <div className="mt-3 rounded-lg bg-cyan-500/10 p-3 text-sm text-cyan-200">
                 <span className="font-medium">{dict.newsletter.askBackTitle}: </span>

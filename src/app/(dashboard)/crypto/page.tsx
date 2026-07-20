@@ -6,6 +6,7 @@ import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useCryptoPrices } from "@/lib/useCryptoPrices";
 import { resolveCoins, DEFAULT_CRYPTO_COINS } from "@/lib/crypto";
 import { PriceTriangle } from "@/components/PriceTriangle";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import type { CryptoNewsEntry } from "@/generated/prisma";
 
 function formatPrice(usd: number) {
@@ -137,9 +138,7 @@ export default function CryptoPage() {
         {entries.map((entry) => (
           <div key={entry.id} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
             <p className="mb-2 text-xs text-zinc-500">{new Date(entry.createdAt).toLocaleString()}</p>
-            <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap text-zinc-200">
-              {entry.content}
-            </div>
+            <MarkdownContent content={entry.content} />
           </div>
         ))}
       </div>
