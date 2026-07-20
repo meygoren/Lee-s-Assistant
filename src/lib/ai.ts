@@ -40,19 +40,39 @@ export async function generateAIText(opts: GenerateOptions): Promise<string | nu
   if (provider === "gemini") {
     const client = getGeminiClient();
     if (!client) return null;
-    try {
-      const response = await client.models.generateContent({
+
+    const callGemini = (withSearch: boolean) =>
+      client.models.generateContent({
         model: GEMINI_MODEL,
         contents: opts.userMessage,
         config: {
-          systemInstruction: opts.systemPrompt,
-          tools: opts.webSearch ? [{ googleSearch: {} }] : undefined,
+          systemInstruction: withSearch
+            ? opts.systemPrompt
+            : `${opts.systemPrompt}\n\nLive web search isn't available right now, so answer from your general knowledge instead of searching. If asked for "today's" news, be upfront that this may not reflect the very latest headlines.`,
+          tools: withSearch ? [{ googleSearch: {} }] : undefined,
         },
       });
+
+    try {
+      const response = await callGemini(Boolean(opts.webSearch));
       return response.text ?? null;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      if (message.includes("429") || message.includes("RESOURCE_EXHAUSTED")) {
+      const isQuotaError = message.includes("429") || message.includes("RESOURCE_EXHAUSTED");
+
+      // Search Grounding has its own quota, separate from (and often stricter than)
+      // the base text-generation quota on the free tier. If a search-grounded call
+      // gets quota-limited, retry once without it instead of failing outright.
+      if (isQuotaError && opts.webSearch) {
+        try {
+          const fallback = await callGemini(false);
+          return fallback.text ?? null;
+        } catch {
+          // fall through to the quota error below
+        }
+      }
+
+      if (isQuotaError) {
         throw new Error(
           "Gemini's free-tier rate limit was hit. This usually clears within a minute — wait a bit and try again. If it keeps happening, check your usage at https://ai.dev/rate-limit."
         );
