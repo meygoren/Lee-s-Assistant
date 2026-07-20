@@ -17,6 +17,7 @@ model Settings {
   aiKnowledgeLevel   String   @default("beginner") // freeform notes on what Lee already knows
   wechatWebhookUrl   String?
   timezone           String   @default("Asia/Shanghai")
+  globeTimeZones     Json     @default("[\"Asia/Shanghai\", \"Asia/Tokyo\", \"Europe/London\", \"America/New_York\"]") // IANA ids shown as markers on the home globe
   updatedAt          DateTime @updatedAt
 }
 

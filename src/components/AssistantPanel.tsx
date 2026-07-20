@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { Mic, Send } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useVoice } from "@/lib/useVoice";
 
@@ -85,7 +86,7 @@ export function AssistantPanel() {
             listening ? "animate-pulse bg-red-500 text-white" : "bg-zinc-800 text-cyan-300 hover:bg-zinc-700"
           }`}
         >
-          🎙
+          <Mic size={16} strokeWidth={2} />
         </button>
         <input
           value={input}
@@ -96,9 +97,10 @@ export function AssistantPanel() {
         <button
           type="submit"
           disabled={input.trim().length === 0}
-          className="rounded-full bg-cyan-500 px-4 py-2 text-sm font-medium text-zinc-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex items-center gap-1.5 rounded-full bg-cyan-500 px-4 py-2 text-sm font-medium text-zinc-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {dict.home.send}
+          <Send size={14} strokeWidth={2} />
         </button>
       </form>
     </div>

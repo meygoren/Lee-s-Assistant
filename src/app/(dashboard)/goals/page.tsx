@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import type { Goal } from "@/generated/prisma";
 
@@ -83,9 +84,10 @@ export default function GoalsPage() {
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-cyan-400"
+          className="flex items-center gap-1.5 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-cyan-400"
         >
-          + {dict.goals.addGoal}
+          <Plus size={16} strokeWidth={2} />
+          {dict.goals.addGoal}
         </button>
       </div>
 

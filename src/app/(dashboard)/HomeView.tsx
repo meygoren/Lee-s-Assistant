@@ -4,7 +4,13 @@ import { Globe } from "@/components/globe/Globe";
 import { AssistantPanel } from "@/components/AssistantPanel";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
-export function HomeView({ notificationCount }: { notificationCount: number }) {
+export function HomeView({
+  notificationCount,
+  timeZoneIds,
+}: {
+  notificationCount: number;
+  timeZoneIds: string[];
+}) {
   const { dict } = useLanguage();
 
   return (
@@ -15,7 +21,7 @@ export function HomeView({ notificationCount }: { notificationCount: number }) {
           <p className="text-sm text-zinc-400">{dict.home.subtitle}</p>
         </div>
         <div className="min-h-[320px] flex-1 overflow-hidden rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-950">
-          <Globe notificationCount={notificationCount} />
+          <Globe notificationCount={notificationCount} timeZoneIds={timeZoneIds} />
         </div>
       </div>
       <div className="h-[420px] lg:h-auto lg:w-[420px]">

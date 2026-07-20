@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, Plus, Star } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import type { CalendarEvent } from "@/generated/prisma";
 
@@ -106,9 +107,9 @@ export default function CalendarPage() {
           <div className="mb-4 flex items-center justify-between">
             <button
               onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-              className="rounded-lg px-3 py-1 text-zinc-400 hover:bg-zinc-800"
+              className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800"
             >
-              ‹
+              <ChevronLeft size={18} strokeWidth={2} />
             </button>
             <div className="flex items-center gap-3">
               <h2 className="font-medium text-zinc-100">{monthLabel}</h2>
@@ -125,9 +126,9 @@ export default function CalendarPage() {
             </div>
             <button
               onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-              className="rounded-lg px-3 py-1 text-zinc-400 hover:bg-zinc-800"
+              className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800"
             >
-              ›
+              <ChevronRight size={18} strokeWidth={2} />
             </button>
           </div>
 
@@ -183,9 +184,10 @@ export default function CalendarPage() {
             </h3>
             <button
               onClick={() => setShowForm((v) => !v)}
-              className="rounded-lg bg-cyan-500 px-3 py-1 text-xs font-medium text-zinc-950 hover:bg-cyan-400"
+              className="flex items-center gap-1 rounded-lg bg-cyan-500 px-3 py-1 text-xs font-medium text-zinc-950 hover:bg-cyan-400"
             >
-              + {dict.calendar.addEvent}
+              <Plus size={14} strokeWidth={2} />
+              {dict.calendar.addEvent}
             </button>
           </div>
 
@@ -240,7 +242,7 @@ export default function CalendarPage() {
               <div key={ev.id} className="rounded-lg border border-zinc-800 p-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-1.5">
-                    {ev.important && <span className="text-orange-400">●</span>}
+                    {ev.important && <Star size={13} strokeWidth={2} className="fill-orange-400 text-orange-400" />}
                     <span className="text-sm text-zinc-100">{ev.title}</span>
                   </div>
                   <button

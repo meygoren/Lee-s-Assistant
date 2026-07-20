@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
+import { CITY_LIBRARY, DEFAULT_TIME_ZONES } from "@/lib/geo";
 
 type SettingsData = {
   language: "zh" | "en";
   aiKnowledgeLevel: string;
   wechatWebhookUrl: string | null;
+  globeTimeZones: string[];
   anthropicKeyConfigured: boolean;
 };
 
@@ -15,6 +18,7 @@ export default function SettingsPage() {
   const [data, setData] = useState<SettingsData | null>(null);
   const [aiKnowledgeLevel, setAiKnowledgeLevel] = useState("");
   const [wechatWebhookUrl, setWechatWebhookUrl] = useState("");
+  const [globeTimeZones, setGlobeTimeZones] = useState<string[]>(DEFAULT_TIME_ZONES);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -24,15 +28,26 @@ export default function SettingsPage() {
         setData(settings);
         setAiKnowledgeLevel(settings.aiKnowledgeLevel ?? "");
         setWechatWebhookUrl(settings.wechatWebhookUrl ?? "");
+        setGlobeTimeZones(
+          Array.isArray(settings.globeTimeZones) && settings.globeTimeZones.length > 0
+            ? settings.globeTimeZones
+            : DEFAULT_TIME_ZONES
+        );
       });
   }, []);
+
+  const toggleTimeZone = (timeZone: string) => {
+    setGlobeTimeZones((prev) =>
+      prev.includes(timeZone) ? prev.filter((tz) => tz !== timeZone) : [...prev, timeZone]
+    );
+  };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch("/api/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ aiKnowledgeLevel, wechatWebhookUrl, language: lang }),
+      body: JSON.stringify({ aiKnowledgeLevel, wechatWebhookUrl, language: lang, globeTimeZones }),
     });
     const { settings } = await res.json();
     setData((prev) => (prev ? { ...prev, ...settings } : prev));
@@ -88,6 +103,37 @@ export default function SettingsPage() {
             placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=..."
             className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-cyan-500"
           />
+        </div>
+
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+          <label className="mb-1 block text-sm font-medium text-zinc-200">{dict.settings.globeTimeZones}</label>
+          <p className="mb-3 text-xs text-zinc-500">{dict.settings.globeTimeZonesHelp}</p>
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+            {CITY_LIBRARY.map((city) => {
+              const active = globeTimeZones.includes(city.timeZone);
+              return (
+                <button
+                  key={city.timeZone}
+                  type="button"
+                  onClick={() => toggleTimeZone(city.timeZone)}
+                  className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition ${
+                    active
+                      ? "border-cyan-500/60 bg-cyan-500/10 text-cyan-300"
+                      : "border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  <span
+                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${
+                      active ? "border-cyan-400 bg-cyan-400 text-zinc-950" : "border-zinc-600"
+                    }`}
+                  >
+                    {active && <Check size={10} strokeWidth={3} />}
+                  </span>
+                  {city.name[lang]}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">

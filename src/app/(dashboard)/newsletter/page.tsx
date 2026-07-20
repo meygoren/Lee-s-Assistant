@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CheckCircle2, Sparkles } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import type { NewsletterEntry } from "@/generated/prisma";
 
@@ -43,8 +44,9 @@ export default function NewsletterPage() {
       <button
         onClick={generate}
         disabled={generating}
-        className="mb-6 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mb-6 flex items-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
       >
+        <Sparkles size={16} strokeWidth={2} />
         {generating ? dict.newsletter.generating : dict.newsletter.generate}
       </button>
 
@@ -55,7 +57,12 @@ export default function NewsletterPage() {
           <div key={entry.id} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
             <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
               <span>{new Date(entry.createdAt).toLocaleString()}</span>
-              {entry.sentToWeChat && <span className="text-cyan-400">WeChat ✓</span>}
+              {entry.sentToWeChat && (
+                <span className="flex items-center gap-1 text-cyan-400">
+                  <CheckCircle2 size={14} strokeWidth={2} />
+                  WeChat
+                </span>
+              )}
             </div>
             <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap text-zinc-200">
               {entry.content}

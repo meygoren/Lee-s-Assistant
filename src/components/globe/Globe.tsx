@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
-import { latLonToVector3, TIME_ZONE_CITIES } from "@/lib/geo";
+import { latLonToVector3, DEFAULT_TIME_ZONES, resolveTimeZoneCities } from "@/lib/geo";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import type { Language } from "@/lib/i18n/dictionaries";
 
@@ -13,12 +13,15 @@ const RADIUS = 1.8;
 function RotatingGlobe({
   notificationCount,
   lang,
+  timeZoneIds,
 }: {
   notificationCount: number;
   lang: Language;
+  timeZoneIds: string[];
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const [now, setNow] = useState(() => new Date());
+  const cities = resolveTimeZoneCities(timeZoneIds);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30_000);
@@ -27,7 +30,8 @@ function RotatingGlobe({
 
   useFrame((_, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.08;
+      // Always rotating — this is a passive "alive" ambient animation, independent of OrbitControls' drag-to-look.
+      groupRef.current.rotation.y += delta * 0.11;
     }
   });
 
@@ -58,7 +62,7 @@ function RotatingGlobe({
       })}
 
       {/* Time zone city markers */}
-      {TIME_ZONE_CITIES.map((city) => {
+      {cities.map((city) => {
         const pos = latLonToVector3(city.lat, city.lon, RADIUS * 1.02);
         const time = new Intl.DateTimeFormat(lang === "zh" ? "zh-CN" : "en-US", {
           hour: "2-digit",
@@ -101,12 +105,18 @@ function RotatingGlobe({
   );
 }
 
-export function Globe({ notificationCount = 0 }: { notificationCount?: number }) {
+export function Globe({
+  notificationCount = 0,
+  timeZoneIds = DEFAULT_TIME_ZONES,
+}: {
+  notificationCount?: number;
+  timeZoneIds?: string[];
+}) {
   const { lang } = useLanguage();
   return (
     <Canvas camera={{ position: [0, 0, 5], fov: 45 }} className="!touch-none">
       <ambientLight intensity={1} />
-      <RotatingGlobe notificationCount={notificationCount} lang={lang} />
+      <RotatingGlobe notificationCount={notificationCount} lang={lang} timeZoneIds={timeZoneIds} />
       <OrbitControls
         enablePan={false}
         enableZoom={false}

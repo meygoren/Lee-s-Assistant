@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Home, Target, CalendarDays, Newspaper, Settings, Sparkles, LogOut, Languages } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 const NAV_ITEMS = [
-  { href: "/", key: "home" as const, icon: "🏠" },
-  { href: "/goals", key: "goals" as const, icon: "🎯" },
-  { href: "/calendar", key: "calendar" as const, icon: "📅" },
-  { href: "/newsletter", key: "newsletter" as const, icon: "🤖" },
-  { href: "/settings", key: "settings" as const, icon: "⚙️" },
+  { href: "/", key: "home" as const, Icon: Home },
+  { href: "/goals", key: "goals" as const, Icon: Target },
+  { href: "/calendar", key: "calendar" as const, Icon: CalendarDays },
+  { href: "/newsletter", key: "newsletter" as const, Icon: Newspaper },
+  { href: "/settings", key: "settings" as const, Icon: Settings },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -27,24 +28,24 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-1 flex-col md:flex-row">
       <aside className="flex shrink-0 flex-row items-center justify-between gap-2 border-b border-zinc-800 bg-zinc-950/80 px-4 py-3 md:w-56 md:flex-col md:items-stretch md:justify-start md:border-b-0 md:border-r md:px-4 md:py-6">
         <div className="mb-0 flex items-center gap-2 text-lg font-semibold text-cyan-400 md:mb-8">
-          <span>✨</span>
+          <Sparkles size={20} strokeWidth={2} />
           <span>{dict.appName}</span>
         </div>
         <nav className="flex flex-1 flex-row gap-1 md:flex-col md:gap-1">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href;
+          {NAV_ITEMS.map(({ href, key, Icon }) => {
+            const active = pathname === href;
             return (
               <Link
-                key={item.href}
-                href={item.href}
+                key={href}
+                href={href}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
                   active
                     ? "bg-cyan-500/10 text-cyan-400"
                     : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100"
                 }`}
               >
-                <span>{item.icon}</span>
-                <span className="hidden md:inline">{dict.nav[item.key]}</span>
+                <Icon size={18} strokeWidth={2} />
+                <span className="hidden md:inline">{dict.nav[key]}</span>
               </Link>
             );
           })}
@@ -53,15 +54,17 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => setLang(lang === "zh" ? "en" : "zh")}
-            className="rounded-lg px-3 py-2 text-left text-xs text-zinc-500 hover:bg-zinc-800/60 hover:text-zinc-300"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-zinc-500 hover:bg-zinc-800/60 hover:text-zinc-300"
           >
+            <Languages size={16} strokeWidth={2} />
             {lang === "zh" ? "English" : "中文"}
           </button>
           <button
             type="button"
             onClick={handleLogout}
-            className="rounded-lg px-3 py-2 text-left text-xs text-zinc-500 hover:bg-zinc-800/60 hover:text-zinc-300"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-zinc-500 hover:bg-zinc-800/60 hover:text-zinc-300"
           >
+            <LogOut size={16} strokeWidth={2} />
             {dict.logout}
           </button>
         </div>

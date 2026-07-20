@@ -25,6 +25,9 @@ export async function PATCH(req: NextRequest) {
   if (typeof body.wechatWebhookUrl === "string" || body.wechatWebhookUrl === null) {
     data.wechatWebhookUrl = body.wechatWebhookUrl || null;
   }
+  if (Array.isArray(body.globeTimeZones) && body.globeTimeZones.every((v: unknown) => typeof v === "string")) {
+    data.globeTimeZones = body.globeTimeZones;
+  }
 
   const settings = await prisma.settings.upsert({
     where: { id: "singleton" },
