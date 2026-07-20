@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { useCryptoPrices } from "@/lib/useCryptoPrices";
 import { resolveCoins, DEFAULT_CRYPTO_COINS } from "@/lib/crypto";
+import { PriceTriangle } from "@/components/PriceTriangle";
 import type { CryptoNewsEntry } from "@/generated/prisma";
 
 function formatPrice(usd: number) {
@@ -20,7 +21,7 @@ export default function CryptoPage() {
   const [loadingNews, setLoadingNews] = useState(true);
   const [generating, setGenerating] = useState(false);
   const coins = resolveCoins(coinIds);
-  const { prices, loading: loadingPrices } = useCryptoPrices(coinIds);
+  const { prices, ticks, loading: loadingPrices } = useCryptoPrices(coinIds);
 
   const loadNews = async () => {
     setLoadingNews(true);
@@ -68,27 +69,33 @@ export default function CryptoPage() {
             const change = price?.usd_24h_change ?? null;
             const isUp = typeof change === "number" && change > 0.005;
             const isDown = typeof change === "number" && change < -0.005;
+            const tick = ticks[coin.id];
             return (
-              <div key={coin.id} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+              <div
+                key={coin.id}
+                className={`rounded-xl border border-zinc-800 p-4 transition-colors duration-700 ${
+                  tick === "up" ? "bg-emerald-500/10" : tick === "down" ? "bg-orange-500/10" : "bg-zinc-900/60"
+                }`}
+              >
                 <div className="mb-2 flex items-center justify-between">
                   <div>
                     <h3 className="font-medium text-zinc-100">{coin.name[lang]}</h3>
                     <p className="text-xs text-zinc-500">{coin.symbol}</p>
                   </div>
                   <span
-                    className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs ${
+                    className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs tabular-nums ${
                       isUp
                         ? "bg-emerald-500/10 text-emerald-400"
                         : isDown
-                        ? "bg-red-500/10 text-red-400"
+                        ? "bg-orange-500/10 text-orange-400"
                         : "bg-zinc-800 text-zinc-500"
                     }`}
                   >
-                    {isUp ? <TrendingUp size={12} strokeWidth={2.5} /> : isDown ? <TrendingDown size={12} strokeWidth={2.5} /> : <Minus size={12} strokeWidth={2.5} />}
+                    <PriceTriangle direction={isUp ? "up" : isDown ? "down" : "flat"} />
                     {typeof change === "number" ? `${change > 0 ? "+" : ""}${change.toFixed(2)}%` : "—"}
                   </span>
                 </div>
-                <p className="text-2xl font-semibold text-zinc-50">
+                <p className="text-2xl font-semibold tabular-nums text-zinc-50">
                   {loadingPrices && !price ? "···" : price ? formatPrice(price.usd) : "—"}
                 </p>
                 <p className="mt-1 text-xs text-zinc-500">{dict.crypto.change24h}</p>
