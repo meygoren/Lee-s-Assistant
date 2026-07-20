@@ -11,6 +11,7 @@ export async function GET() {
     settings: {
       ...settings,
       anthropicKeyConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
+      telegramBotTokenConfigured: Boolean(process.env.TELEGRAM_BOT_TOKEN),
     },
   });
 }
@@ -24,6 +25,9 @@ export async function PATCH(req: NextRequest) {
   if (typeof body.aiKnowledgeLevel === "string") data.aiKnowledgeLevel = body.aiKnowledgeLevel;
   if (typeof body.wechatWebhookUrl === "string" || body.wechatWebhookUrl === null) {
     data.wechatWebhookUrl = body.wechatWebhookUrl || null;
+  }
+  if (typeof body.telegramChatId === "string" || body.telegramChatId === null) {
+    data.telegramChatId = body.telegramChatId || null;
   }
   if (Array.isArray(body.globeTimeZones) && body.globeTimeZones.every((v: unknown) => typeof v === "string")) {
     data.globeTimeZones = body.globeTimeZones;

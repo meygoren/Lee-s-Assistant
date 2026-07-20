@@ -9,8 +9,10 @@ type SettingsData = {
   language: "zh" | "en";
   aiKnowledgeLevel: string;
   wechatWebhookUrl: string | null;
+  telegramChatId: string | null;
   globeTimeZones: string[];
   anthropicKeyConfigured: boolean;
+  telegramBotTokenConfigured: boolean;
 };
 
 export default function SettingsPage() {
@@ -18,6 +20,7 @@ export default function SettingsPage() {
   const [data, setData] = useState<SettingsData | null>(null);
   const [aiKnowledgeLevel, setAiKnowledgeLevel] = useState("");
   const [wechatWebhookUrl, setWechatWebhookUrl] = useState("");
+  const [telegramChatId, setTelegramChatId] = useState("");
   const [globeTimeZones, setGlobeTimeZones] = useState<string[]>(DEFAULT_TIME_ZONES);
   const [saved, setSaved] = useState(false);
 
@@ -28,6 +31,7 @@ export default function SettingsPage() {
         setData(settings);
         setAiKnowledgeLevel(settings.aiKnowledgeLevel ?? "");
         setWechatWebhookUrl(settings.wechatWebhookUrl ?? "");
+        setTelegramChatId(settings.telegramChatId ?? "");
         setGlobeTimeZones(
           Array.isArray(settings.globeTimeZones) && settings.globeTimeZones.length > 0
             ? settings.globeTimeZones
@@ -47,7 +51,7 @@ export default function SettingsPage() {
     const res = await fetch("/api/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ aiKnowledgeLevel, wechatWebhookUrl, language: lang, globeTimeZones }),
+      body: JSON.stringify({ aiKnowledgeLevel, wechatWebhookUrl, telegramChatId, language: lang, globeTimeZones }),
     });
     const { settings } = await res.json();
     setData((prev) => (prev ? { ...prev, ...settings } : prev));
@@ -106,6 +110,17 @@ export default function SettingsPage() {
         </div>
 
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+          <label className="mb-1 block text-sm font-medium text-zinc-200">{dict.settings.telegram}</label>
+          <p className="mb-2 text-xs text-zinc-500">{dict.settings.telegramHelp}</p>
+          <input
+            value={telegramChatId}
+            onChange={(e) => setTelegramChatId(e.target.value)}
+            placeholder="123456789"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-cyan-500"
+          />
+        </div>
+
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
           <label className="mb-1 block text-sm font-medium text-zinc-200">{dict.settings.globeTimeZones}</label>
           <p className="mb-3 text-xs text-zinc-500">{dict.settings.globeTimeZonesHelp}</p>
           <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
@@ -142,6 +157,12 @@ export default function SettingsPage() {
             <span className="text-zinc-400">{dict.settings.anthropicKey}</span>
             <span className={data?.anthropicKeyConfigured ? "text-cyan-400" : "text-zinc-500"}>
               {data?.anthropicKeyConfigured ? dict.settings.configured : dict.settings.notConfigured}
+            </span>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-sm">
+            <span className="text-zinc-400">{dict.settings.telegramBotToken}</span>
+            <span className={data?.telegramBotTokenConfigured ? "text-cyan-400" : "text-zinc-500"}>
+              {data?.telegramBotTokenConfigured ? dict.settings.configured : dict.settings.notConfigured}
             </span>
           </div>
         </div>

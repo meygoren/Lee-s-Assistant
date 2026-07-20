@@ -57,12 +57,20 @@ export default function NewsletterPage() {
           <div key={entry.id} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
             <div className="mb-2 flex items-center justify-between text-xs text-zinc-500">
               <span>{new Date(entry.createdAt).toLocaleString()}</span>
-              {entry.sentToWeChat && (
-                <span className="flex items-center gap-1 text-cyan-400">
-                  <CheckCircle2 size={14} strokeWidth={2} />
-                  WeChat
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {entry.sentToWeChat && (
+                  <span className="flex items-center gap-1 text-cyan-400">
+                    <CheckCircle2 size={14} strokeWidth={2} />
+                    WeChat
+                  </span>
+                )}
+                {entry.sentToTelegram && (
+                  <span className="flex items-center gap-1 text-cyan-400">
+                    <CheckCircle2 size={14} strokeWidth={2} />
+                    Telegram
+                  </span>
+                )}
+              </div>
             </div>
             <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap text-zinc-200">
               {entry.content}

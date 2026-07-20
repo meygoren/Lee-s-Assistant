@@ -48,15 +48,25 @@ Lee lives in China, so the AI newsletter can push its daily digest into **WeChat
 
 No redeploy needed — it's stored in the database, not an env var.
 
+## Telegram notifications
+
+Since personal WeChat accounts have no official bot API (and unofficial ones risk getting the account banned), Telegram is the easiest official alternative — Telegram's Bot API is free and fully sanctioned. Note: Telegram is blocked in mainland China, so this only works if the recipient uses a VPN.
+
+1. In Telegram, message **@BotFather** → `/newbot` → follow the prompts. It gives you a bot token like `123456:ABC-DEF...`.
+2. Add that token as `TELEGRAM_BOT_TOKEN` in Vercel's environment variables (Settings → Environment Variables), then redeploy.
+3. Message your new bot anything (search for it by the username you gave it) to start a chat.
+4. Get your chat ID by visiting `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates` in a browser (replace `<YOUR_TOKEN>`) — look for `"chat":{"id":...}` in the response.
+5. Paste that number into the app's **Settings** tab under "Telegram chat ID".
+
 ## Automating the morning newsletter
 
-`/api/cron/newsletter` generates a digest and pushes it to WeChat Work if configured. `vercel.json` is already set up to call it daily at 23:00 UTC (≈ 07:00 Beijing/Shanghai time) via Vercel Cron — this is enabled automatically once the app is deployed on Vercel with `CRON_SECRET` set. Vercel sends that secret as a Bearer token automatically, so no extra setup is needed.
+`/api/cron/newsletter` generates a digest and pushes it to WeChat Work and/or Telegram, whichever is configured. `vercel.json` is already set up to call it daily at 23:00 UTC (≈ 07:00 Beijing/Shanghai time) via Vercel Cron — this is enabled automatically once the app is deployed on Vercel with `CRON_SECRET` set. Vercel sends that secret as a Bearer token automatically, so no extra setup is needed.
 
 ## Project structure
 
 - `src/app/(dashboard)/` — the five tabs: Home (globe + voice assistant), Goals, Calendar, AI Newsletter, Settings
 - `src/app/api/` — backend routes (goals, events, newsletter, settings, assistant chat, auth, cron)
-- `src/lib/` — Prisma client, session/auth helpers, Anthropic client, WeChat push, i18n dictionaries
+- `src/lib/` — Prisma client, session/auth helpers, Anthropic client, WeChat/Telegram push, i18n dictionaries
 - `prisma/schema.prisma` — data model (Postgres)
 
 ## Voice on the Home tab

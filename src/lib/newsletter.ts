@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getAnthropicClient, CLAUDE_MODEL } from "@/lib/anthropic";
 import { pushToWeChat } from "@/lib/wechat";
+import { pushToTelegram } from "@/lib/telegram";
 import type { NewsletterEntry } from "@/generated/prisma";
 
 const STUB_CONTENT: Record<"zh" | "en", { summary: string; content: string; askBack: string }> = {
@@ -81,11 +82,17 @@ End your response with exactly one clarifying question to help you understand Le
     data: { summary, content, askBack },
   });
 
-  if (settings?.wechatWebhookUrl) {
-    const sent = await pushToWeChat(settings.wechatWebhookUrl, `${summary}\n\n${content}`);
-    if (sent) {
-      return prisma.newsletterEntry.update({ where: { id: entry.id }, data: { sentToWeChat: true } });
-    }
+  const pushText = `${summary}\n\n${content}`;
+  const [sentToWeChat, sentToTelegram] = await Promise.all([
+    settings?.wechatWebhookUrl ? pushToWeChat(settings.wechatWebhookUrl, pushText) : Promise.resolve(false),
+    settings?.telegramChatId ? pushToTelegram(settings.telegramChatId, pushText) : Promise.resolve(false),
+  ]);
+
+  if (sentToWeChat || sentToTelegram) {
+    return prisma.newsletterEntry.update({
+      where: { id: entry.id },
+      data: { sentToWeChat, sentToTelegram },
+    });
   }
 
   return entry;
