@@ -9,6 +9,7 @@ import { COIN_LIBRARY, DEFAULT_CRYPTO_COINS, MAX_TRACKED_COINS } from "@/lib/cry
 type SettingsData = {
   language: "zh" | "en";
   aiKnowledgeLevel: string;
+  cryptoKnowledgeLevel: string;
   wechatWebhookUrl: string | null;
   telegramChatId: string | null;
   globeTimeZones: string[];
@@ -23,6 +24,7 @@ export default function SettingsPage() {
   const { dict, lang, setLang } = useLanguage();
   const [data, setData] = useState<SettingsData | null>(null);
   const [aiKnowledgeLevel, setAiKnowledgeLevel] = useState("");
+  const [cryptoKnowledgeLevel, setCryptoKnowledgeLevel] = useState("");
   const [wechatWebhookUrl, setWechatWebhookUrl] = useState("");
   const [telegramChatId, setTelegramChatId] = useState("");
   const [globeTimeZones, setGlobeTimeZones] = useState<string[]>(DEFAULT_TIME_ZONES);
@@ -35,6 +37,7 @@ export default function SettingsPage() {
       .then(({ settings }) => {
         setData(settings);
         setAiKnowledgeLevel(settings.aiKnowledgeLevel ?? "");
+        setCryptoKnowledgeLevel(settings.cryptoKnowledgeLevel ?? "");
         setWechatWebhookUrl(settings.wechatWebhookUrl ?? "");
         setTelegramChatId(settings.telegramChatId ?? "");
         setGlobeTimeZones(
@@ -71,6 +74,7 @@ export default function SettingsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         aiKnowledgeLevel,
+        cryptoKnowledgeLevel,
         wechatWebhookUrl,
         telegramChatId,
         language: lang,
@@ -118,6 +122,17 @@ export default function SettingsPage() {
           <textarea
             value={aiKnowledgeLevel}
             onChange={(e) => setAiKnowledgeLevel(e.target.value)}
+            rows={4}
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-cyan-500"
+          />
+        </div>
+
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+          <label className="mb-1 block text-sm font-medium text-zinc-200">{dict.settings.cryptoLevel}</label>
+          <p className="mb-2 text-xs text-zinc-500">{dict.settings.cryptoLevelHelp}</p>
+          <textarea
+            value={cryptoKnowledgeLevel}
+            onChange={(e) => setCryptoKnowledgeLevel(e.target.value)}
             rows={4}
             className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-cyan-500"
           />

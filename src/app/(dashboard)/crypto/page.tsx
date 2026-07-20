@@ -7,6 +7,10 @@ import { useCryptoPrices } from "@/lib/useCryptoPrices";
 import { resolveCoins, DEFAULT_CRYPTO_COINS } from "@/lib/crypto";
 import { PriceTriangle } from "@/components/PriceTriangle";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { EntryFeedback } from "@/components/EntryFeedback";
+import { SourceList } from "@/components/SourceList";
+import { EntryConversation } from "@/components/EntryConversation";
+import type { StoredSource, FollowUp } from "@/lib/digest";
 import type { CryptoNewsEntry } from "@/generated/prisma";
 
 function formatPrice(usd: number) {
@@ -139,6 +143,26 @@ export default function CryptoPage() {
           <div key={entry.id} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
             <p className="mb-2 text-xs text-zinc-500">{new Date(entry.createdAt).toLocaleString()}</p>
             <MarkdownContent content={entry.content} />
+            <SourceList
+              apiBase="/api/crypto/news"
+              entryId={entry.id}
+              sources={(entry.sources as unknown as StoredSource[]) ?? []}
+              label={dict.feedback.sourcesLabel}
+            />
+            <EntryFeedback
+              apiBase="/api/crypto/news"
+              entryId={entry.id}
+              initialFeedback={entry.feedback}
+              initialNote={entry.feedbackNote}
+              askBack={entry.askBack}
+              labels={dict.feedback}
+            />
+            <EntryConversation
+              apiBase="/api/crypto/news"
+              entryId={entry.id}
+              initialFollowUps={(entry.followUps as unknown as FollowUp[]) ?? []}
+              labels={dict.feedback}
+            />
           </div>
         ))}
       </div>

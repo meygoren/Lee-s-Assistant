@@ -69,7 +69,6 @@ export const dictionaries = {
       noKey: "尚未配置 Anthropic API Key，暂时显示示例内容。请到设置页添加密钥。",
       history: "历史记录",
       empty: "还没有生成过快讯，点击上方按钮开始吧。",
-      askBackTitle: "帮我更了解你",
       generateError: "生成失败",
     },
     crypto: {
@@ -84,6 +83,18 @@ export const dictionaries = {
       newsError: "生成失败",
       noCoins: "还没有选择要关注的加密货币，请到设置页选择最多 5 个。",
     },
+    feedback: {
+      askBackTitle: "帮我更了解你",
+      more: "更多这类内容",
+      known: "我已经知道",
+      less: "减少这类内容",
+      notePlaceholder: "留言告诉我更多，帮助我更懂你…",
+      saved: "已保存",
+      sourcesLabel: "信息来源（点赞或点踩，帮我了解你喜欢的资讯风格）",
+      askPlaceholder: "针对这篇内容提问…",
+      ask: "提问",
+      asking: "回答中…",
+    },
     settings: {
       title: "设置",
       subtitle: "自定义你的助理。",
@@ -92,6 +103,8 @@ export const dictionaries = {
       languageEn: "English",
       aiLevel: "AI 知识水平",
       aiLevelHelp: "告诉助理你已经了解哪些 AI 工具，这样它可以更好地为你解释新内容。",
+      cryptoLevel: "加密货币知识水平",
+      cryptoLevelHelp: "告诉助理你已经了解哪些加密货币知识、感兴趣的方向，这样它可以更好地为你个性化资讯。",
       wechat: "企业微信机器人 Webhook",
       wechatHelp: "用于每天早上把 AI 快讯推送到企业微信。",
       telegram: "Telegram 聊天 ID",
@@ -183,7 +196,6 @@ export const dictionaries = {
       noKey: "Anthropic API key isn't configured yet, showing sample content. Add your key in Settings.",
       history: "History",
       empty: "No digests yet — click the button above to generate your first one.",
-      askBackTitle: "Help me understand you better",
       generateError: "Generation failed",
     },
     crypto: {
@@ -198,6 +210,18 @@ export const dictionaries = {
       newsError: "Generation failed",
       noCoins: "No cryptocurrencies selected yet — pick up to 5 in Settings.",
     },
+    feedback: {
+      askBackTitle: "Help me understand you better",
+      more: "More like this",
+      known: "Already knew this",
+      less: "Less like this",
+      notePlaceholder: "Tell me more so I can personalize better…",
+      saved: "Saved",
+      sourcesLabel: "Sources (rate them to teach me what kind of reporting you like)",
+      askPlaceholder: "Ask a question about this…",
+      ask: "Ask",
+      asking: "Answering…",
+    },
     settings: {
       title: "Settings",
       subtitle: "Customize your assistant.",
@@ -207,6 +231,9 @@ export const dictionaries = {
       aiLevel: "AI knowledge level",
       aiLevelHelp:
         "Tell the assistant what AI tools you already know, so it can explain new things better.",
+      cryptoLevel: "Crypto knowledge level",
+      cryptoLevelHelp:
+        "Tell the assistant what you already know about crypto and what you're interested in, so it can personalize the news better.",
       wechat: "WeChat Work bot webhook",
       wechatHelp: "Used to push the morning AI digest to WeChat Work.",
       telegram: "Telegram chat ID",

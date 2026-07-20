@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageProvider";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { EntryFeedback } from "@/components/EntryFeedback";
+import { SourceList } from "@/components/SourceList";
+import { EntryConversation } from "@/components/EntryConversation";
+import type { StoredSource, FollowUp } from "@/lib/digest";
 import type { NewsletterEntry } from "@/generated/prisma";
 
 export default function NewsletterPage() {
@@ -88,12 +92,26 @@ export default function NewsletterPage() {
               </div>
             </div>
             <MarkdownContent content={entry.content} />
-            {entry.askBack && (
-              <div className="mt-3 rounded-lg bg-cyan-500/10 p-3 text-sm text-cyan-200">
-                <span className="font-medium">{dict.newsletter.askBackTitle}: </span>
-                {entry.askBack}
-              </div>
-            )}
+            <SourceList
+              apiBase="/api/newsletter"
+              entryId={entry.id}
+              sources={(entry.sources as unknown as StoredSource[]) ?? []}
+              label={dict.feedback.sourcesLabel}
+            />
+            <EntryFeedback
+              apiBase="/api/newsletter"
+              entryId={entry.id}
+              initialFeedback={entry.feedback}
+              initialNote={entry.feedbackNote}
+              askBack={entry.askBack}
+              labels={dict.feedback}
+            />
+            <EntryConversation
+              apiBase="/api/newsletter"
+              entryId={entry.id}
+              initialFollowUps={(entry.followUps as unknown as FollowUp[]) ?? []}
+              labels={dict.feedback}
+            />
           </div>
         ))}
       </div>

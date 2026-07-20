@@ -64,7 +64,8 @@ If Lee asks you to send something to his Telegram and Telegram is connected, and
 Keep replies conversational and concise (a few sentences, unless Lee is asking for a detailed summary of everything, in which case you may use short bullet points).`;
 
   try {
-    const rawReply = (await generateAIText({ systemPrompt, userMessage: message, maxTokens: 800 })) || STUB_REPLY[lang];
+    const { text } = await generateAIText({ systemPrompt, userMessage: message, maxTokens: 800 });
+    const rawReply = text || STUB_REPLY[lang];
 
     let reply = rawReply;
     const telegramMatch = rawReply.match(TELEGRAM_SEND_MARKER);

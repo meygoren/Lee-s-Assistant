@@ -27,6 +27,7 @@ export async function PATCH(req: NextRequest) {
   const data: Record<string, unknown> = {};
   if (body.language === "zh" || body.language === "en") data.language = body.language;
   if (typeof body.aiKnowledgeLevel === "string") data.aiKnowledgeLevel = body.aiKnowledgeLevel;
+  if (typeof body.cryptoKnowledgeLevel === "string") data.cryptoKnowledgeLevel = body.cryptoKnowledgeLevel;
   if (typeof body.wechatWebhookUrl === "string" || body.wechatWebhookUrl === null) {
     data.wechatWebhookUrl = body.wechatWebhookUrl || null;
   }

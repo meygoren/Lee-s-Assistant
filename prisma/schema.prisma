@@ -12,15 +12,16 @@ datasource db {
 }
 
 model Settings {
-  id                 String   @id @default("singleton")
-  language           String   @default("zh") // "zh" | "en"
-  aiKnowledgeLevel   String   @default("beginner") // freeform notes on what Lee already knows
-  wechatWebhookUrl   String?
-  telegramChatId     String?
-  timezone           String   @default("Asia/Shanghai")
-  globeTimeZones     Json     @default("[\"Asia/Shanghai\", \"Asia/Tokyo\", \"Europe/London\", \"America/New_York\"]") // IANA ids shown as markers on the home globe
-  cryptoCoins        Json     @default("[\"bitcoin\", \"ethereum\", \"solana\", \"binancecoin\", \"ripple\"]") // up to 5 CoinGecko coin ids
-  updatedAt          DateTime @updatedAt
+  id                   String   @id @default("singleton")
+  language             String   @default("zh") // "zh" | "en"
+  aiKnowledgeLevel     String   @default("beginner") // freeform notes on what Lee already knows about AI
+  cryptoKnowledgeLevel String   @default("") // freeform notes on what Lee already knows/wants re: crypto
+  wechatWebhookUrl     String?
+  telegramChatId       String?
+  timezone             String   @default("Asia/Shanghai")
+  globeTimeZones       Json     @default("[\"Asia/Shanghai\", \"Asia/Tokyo\", \"Europe/London\", \"America/New_York\"]") // IANA ids shown as markers on the home globe
+  cryptoCoins          Json     @default("[\"bitcoin\", \"ethereum\", \"solana\", \"binancecoin\", \"ripple\"]") // up to 5 CoinGecko coin ids
+  updatedAt            DateTime @updatedAt
 }
 
 model Goal {
@@ -47,13 +48,17 @@ model CalendarEvent {
 }
 
 model NewsletterEntry {
-  id        String   @id @default(cuid())
-  summary   String // short plain-language summary
-  content   String // full digest markdown
-  askBack   String? // clarifying question posed to Lee to calibrate future digests
-  sentToWeChat Boolean @default(false)
-  sentToTelegram Boolean @default(false)
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  summary        String // short plain-language summary
+  content        String // full digest markdown
+  askBack        String? // clarifying question posed to Lee to calibrate future digests
+  feedback       String? // Lee's quick reaction: "more" | "less" | "known"
+  feedbackNote   String? // Lee's free-text answer/notes, fed back into future digests
+  sources        Json     @default("[]") // [{url, title, feedback: "up"|"down"|null}] — real search-grounding citations
+  followUps      Json     @default("[]") // [{question, answer, createdAt}] — Q&A thread about this digest
+  sentToWeChat   Boolean  @default(false)
+  sentToTelegram Boolean  @default(false)
+  createdAt      DateTime @default(now())
 }
 
 model ChatMessage {
@@ -64,7 +69,12 @@ model ChatMessage {
 }
 
 model CryptoNewsEntry {
-  id        String   @id @default(cuid())
-  content   String // AI-generated news digest covering the tracked coins
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  content      String // AI-generated news digest covering the tracked coins
+  askBack      String? // clarifying question posed to Lee to calibrate future digests
+  feedback     String? // Lee's quick reaction: "more" | "less" | "known"
+  feedbackNote String? // Lee's free-text answer/notes, fed back into future digests
+  sources      Json     @default("[]") // [{url, title, feedback: "up"|"down"|null}] — real search-grounding citations
+  followUps    Json     @default("[]") // [{question, answer, createdAt}] — Q&A thread about this digest
+  createdAt    DateTime @default(now())
 }

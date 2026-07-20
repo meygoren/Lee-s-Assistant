@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { generateAIText, getActiveProvider } from "@/lib/ai";
 import { pushToWeChat } from "@/lib/wechat";
 import { pushToTelegram } from "@/lib/telegram";
+import { splitAskBack, formatHistoryEntry, buildSourceFeedbackContext, toStoredSources } from "@/lib/digest";
 import type { NewsletterEntry } from "@/generated/prisma";
 
 const STUB_CONTENT: Record<"zh" | "en", { summary: string; content: string; askBack: string }> = {
@@ -19,14 +20,13 @@ const STUB_CONTENT: Record<"zh" | "en", { summary: string; content: string; askB
   },
 };
 
-function splitAskBack(text: string): { content: string; askBack: string | null } {
-  const marker = "QUESTION:";
-  const idx = text.lastIndexOf(marker);
-  if (idx === -1) return { content: text.trim(), askBack: null };
-  return {
-    content: text.slice(0, idx).trim(),
-    askBack: text.slice(idx + marker.length).trim(),
-  };
+async function buildHistoryContext(): Promise<{ digestHistory: string; sourceFeedback: string }> {
+  const recent = await prisma.newsletterEntry.findMany({ orderBy: { createdAt: "desc" }, take: 5 });
+  const digestHistory =
+    recent.length === 0
+      ? "(no past digests yet — this is the first one)"
+      : recent.map((e) => formatHistoryEntry(e.summary, e.feedback, e.feedbackNote)).join("\n");
+  return { digestHistory, sourceFeedback: buildSourceFeedbackContext(recent) };
 }
 
 export async function generateAndStoreNewsletter(): Promise<NewsletterEntry> {
@@ -43,11 +43,19 @@ export async function generateAndStoreNewsletter(): Promise<NewsletterEntry> {
   const languageInstruction =
     lang === "zh" ? "Write your response in Mandarin Chinese." : "Write your response in English.";
 
+  const { digestHistory, sourceFeedback } = await buildHistoryContext();
+
   const systemPrompt = `You are curating a daily AI digest for Lee, a beginner when it comes to AI. Search the web for genuinely new AI developments from the last 1-2 days: new model releases, new AI features in tools he might use, new MCP plugins, or other notable AI news.
 
 For each item: explain it in plain, simple language (avoid jargon, or briefly define it when unavoidable), then explain concretely how Lee could use it in his life or work.
 
 What we know about Lee so far (may be sparse — treat gaps as an opportunity to learn more, not as blockers): "${settings?.aiKnowledgeLevel ?? "beginner, no other details yet"}".
+
+Recent digest history — use this to actually personalize, not just repeat the same format: skip or barely touch topics Lee said he already knows, lean into what he reacted well to, avoid re-covering the same ground as recent digests, and take his written notes seriously as real signal about his interests and background:
+${digestHistory}
+
+Source quality feedback from Lee — prioritize searching for and citing sources in the style he's rated well, and avoid the style he's rated poorly:
+${sourceFeedback}
 
 ${languageInstruction}
 
@@ -55,7 +63,7 @@ Format as Markdown with 2-4 short items, each with a bold title. Keep the whole 
 
 End your response with exactly one clarifying question to help you understand Lee's work/life/interests better for future digests, on its own line prefixed by "QUESTION:" (in ${lang === "zh" ? "Mandarin" : "English"}).`;
 
-  const fullText = await generateAIText({
+  const { text: fullText, sources } = await generateAIText({
     systemPrompt,
     userMessage: "Search for today's genuinely new AI news and tools, then write my digest.",
     webSearch: true,
@@ -66,7 +74,7 @@ End your response with exactly one clarifying question to help you understand Le
     content.split("\n").find((line) => line.trim().length > 0)?.slice(0, 200) ?? content.slice(0, 200);
 
   const entry = await prisma.newsletterEntry.create({
-    data: { summary, content, askBack },
+    data: { summary, content, askBack, sources: toStoredSources(sources) },
   });
 
   const pushText = `${summary}\n\n${content}`;
