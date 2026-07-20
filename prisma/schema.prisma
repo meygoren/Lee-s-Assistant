@@ -1,0 +1,60 @@
+// Lee's personal assistant dashboard — data model
+// Single-user app: Settings is a single row (id = "singleton").
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Settings {
+  id                 String   @id @default("singleton")
+  language           String   @default("zh") // "zh" | "en"
+  aiKnowledgeLevel   String   @default("beginner") // freeform notes on what Lee already knows
+  wechatWebhookUrl   String?
+  timezone           String   @default("Asia/Shanghai")
+  updatedAt          DateTime @updatedAt
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  category    String?
+  progress    Int       @default(0) // 0-100
+  status      String    @default("active") // active | completed | archived
+  targetDate  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  allDay      Boolean  @default(true)
+  important   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NewsletterEntry {
+  id        String   @id @default(cuid())
+  summary   String // short plain-language summary
+  content   String // full digest markdown
+  askBack   String? // clarifying question posed to Lee to calibrate future digests
+  sentToWeChat Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String // "user" | "assistant"
+  content   String
+  createdAt DateTime @default(now())
+}
